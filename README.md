@@ -335,3 +335,371 @@ Total number of depth 2 categories an entry has been added to:
 	Total: {results_total}
 {/exp:gwcode_categories}
 ```
+
+## Example 8 - Conditionals
+
+Here's an example to show how to use conditionals:
+```
+{exp:gwcode_categories group_id="3|4"}
+	{group_heading}<b>{cat_group_name}</b><br />{/group_heading}
+	{if cat_group_name == "Blog"}
+		<a href="{path="blog/{cat_url_title}"}">{cat_name}</a>
+	{if:else}
+		{if depth == 2}
+			<a href="{path="add-ons/{cat_url_title}"}">{cat_name}</a>
+		{if:else}
+			{cat_name}
+		{/if}
+	{/if}
+{/exp:gwcode_categories}
+```
+
+## Example 9 - Showing child categories or parent categories
+
+Here's the category group I'm going to use for these examples:
+
+* **cat1**
+  * cat1_1
+    * cat1_1_1
+    * cat1_1_2
+      * cat1_1_2_1
+  * cat1_2
+* cat2
+  * cat2_1
+
+**Child categories**
+Getting child categories for a category is easy. To get the child categories for **cat1**, you'll only have to provide the `cat_id` parameter with the category ID (13 in my case):
+```
+{exp:gwcode_categories cat_id="13"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+Or, you can use the cat_url_title parameter. Let's say that your URL looks like this:
+[http://domain.com/group/template/services]
+where "services" is the category (segment_3). Your code could then be:
+```
+{exp:gwcode_categories cat_url_title="{segment_3}"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+The results will be a list like this:
+
+* cat1
+  * cat1_1
+    * cat1_1_1
+    * cat1_1_2
+     * cat1_1_2_1
+  * cat1_2
+  
+If you don't want to show the "cat1" category, you can add the `incl_self` parameter like so: `incl_self="no"`. And, if you don't want to show the "cat1_2" category for example, you can use the `excl_cat_id` parameter to remove it. As always, you can use the `depth`, `min_depth` or `max_depth` parameters as well, to only show those categories with a certain depth.
+
+> If you're using the `cat_url_title` parameter and 2 or more category groups have a category with the same category url title, you may want to add in the `group_id` parameter to make sure the plugin isn't selecting the category from the wrong category group.
+
+**Parent categories**
+Getting a category's parent categories is just as easy. To get the parent categories for cat1_1_2_1, you use the `cat_id` or `cat_url_title` parameter in combination with the `show_trail` parameter like so (where 26 is my ID for cat1_1_2_1):
+```
+{exp:gwcode_categories cat_id="26" show_trail="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+The results will look like this:
+
+* cat1
+  * cat1_1
+    * cat1_1_2
+      * cat1_1_2_1
+      
+In most cases, you'll probably want to use this to create a breadcrumb trail from the root category to the category you provide. So, you'll want to use the `style` parameter to make the list linear and the `backspace` parameter to remove the last divider:
+```
+{exp:gwcode_categories cat_id="26" show_trail="yes" style="linear" backspace="7"}
+	{cat_name} &raquo;
+{/exp:gwcode_categories}
+```
+This will then be the output:
+
+cat1 » cat1_1 » cat1_1_2 » cat1_1_2_1
+
+## Example 10 - Sorting categories
+
+In this example, I'm going to show you how to grab a list of categories and then sort them to show a
+"Newest categories" list and a "Most popular categories" list.
+
+To get the list I want, I'm going to use the code below. It gets the categories with depth 3 or 4 in category group 5 and shows the number of entries for those categories:
+```
+{exp:gwcode_categories group_id="5" depth="3|4" entry_count="yes"}
+	{cat_name} ({entry_count})
+{/exp:gwcode_categories}
+```
+The output looks like this:
+
+* E-Commerce (1)
+  * Magento (2)
+* Content Management System (1)
+  * ExpressionEngine (4)
+  * Wordpress (0)
+  
+**Newest categories, sorting them by `cat_id`** 
+To re-order the list above so that the categories which have been added the latest are at the top, you can use the `orderby` and `sort` parameters. For the `orderby` parameter, I'm going to use "cat_id", since the categories you've added latest will have the highest category ID. For the `sort` parameter, I'm going to use "desc" as the categories with the highest category ID's should be at the top. For clarification, I've also added the `{cat_id}` variable in the output so you can see how the list is being sorted.
+```
+{exp:gwcode_categories group_id="5" depth="3|4" entry_count="yes" orderby="cat_id" sort="desc"}
+	{cat_name} ({entry_count}) &larr; ID: {cat_id}
+{/exp:gwcode_categories}
+```
+The output will then be:
+
+* Wordpress (0) ← ID: 67
+* ExpressionEngine (4) ← ID: 65
+* E-commerce (1) ← ID: 64
+* Content Management System (1) ← ID: 22
+* Magento (2) ← ID: 20
+
+**Most popular categories, sorting them by `entry_count` and `cat_name`**
+If you want to show a most popular categories list, which has the categories with the most entries at the top, you'll have to use "entry_count" for the `orderby` parameter and "desc" for the `sort` parameter. If you also want to make sure that categories with the same number of entries are sorted alphabatically (A at the top, Z at the bottom), you can add "cat_name" as a second value for the `orderby` parameter and "asc" as a second value for the `sort` parameter like so:
+```
+{exp:gwcode_categories group_id="5" depth="3|4" entry_count="yes" orderby="entry_count|cat_name" sort="desc|asc"}
+	{cat_name} ({entry_count}) &larr; ID: {cat_id}
+{/exp:gwcode_categories}
+```
+..making the output look like this:
+
+* ExpressionEngine (4) ← ID: 65
+* Magento (2) ← ID: 20
+* Content Management System (1) ← ID: 22
+* E-commerce (1) ← ID: 64
+* Wordpress (0) ← ID: 67
+
+As you can see, Content Management System and E-commerce have the same number of entries (1) and Content Management System is listed first because of the second parameter values for the `orderby` and `sort` parameters (cat_name, asc).
+
+## Example 11 - Creating a menu with specific code
+
+GWcode Categories v1.8.0 introduced a couple of new variables. Some of them were added to be able to create complete category based navigation menus which sometimes may require distinct HTML/CSS code.
+
+For example, you might need to create the following code to generate your menu:
+```
+<div class="dropdown">
+	<h2>Services</h2>
+	<div class="group">
+		<div class="col">
+			<h3><a href="/services/detail/cms">CMS</a></h3>
+			<ul>  
+				<li><a href="/services/detail/cms/expressionengine">ExpressionEngine</a></li>
+				<li><a href="/services/detail/cms/wordpress">Wordpress</a></li>
+				<li><a href="/services/detail/cms/joomla">Joomla</a></li>
+				<li><a href="/services/detail/cms/drupal">Drupal</a></li>
+			</ul>
+		</div>
+		<div class="col">
+			<h3><a href="/services/detail/design">Design</a></h3>
+			<ul>  
+				<li><a href="/services/detail/design/websites">Websites</a></li>
+				<li><a href="/services/detail/design/print">Print</a></li>
+				<li><a href="/services/detail/design/logo">Logo</a></li>
+			</ul>
+		</div>
+		<div class="col">
+			<h3><a href="/services/detail/e-commerce">E-Commerce</a></h3>
+			<ul>  
+				<li><a href="/services/detail/e-commerce/magento">Magento</a></li>
+				<li><a href="/services/detail/e-commerce/brilliantretail">BrilliantRetail</a></li>
+				<li><a href="/services/detail/e-commerce/cartthrob">CartThrob</a></li>
+				<li><a href="/services/detail/e-commerce/oscommerce">osCommerce</a></li>
+				<li><a href="/services/detail/e-commerce/virtuemart">VirtueMart</a></li>
+				<li><a href="/services/detail/e-commerce/zen-cart">Zen Cart</a></li>
+			</ul>
+		</div>
+    </div>
+	<div class="group">
+		<div class="col">
+			<h3><a href="/services/detail/javascript">Javascript</a></h3>
+			<ul>  
+				<li><a href="/services/detail/javascript/jquery">jQuery</a></li>
+				<li><a href="/services/detail/javascript/prototype">Prototype</a></li>
+			</ul>
+		</div>
+		<div class="col">
+			<h3><a href="/services/detail/seo">SEO</a></h3>
+			<ul>  
+				<li><a href="/services/detail/seo/sitemaps">Sitemaps</a></li>
+				<li><a href="/services/detail/seo/consult">Consult</a></li>
+				<li><a href="/services/detail/seo/writing">Writing</a></li>
+			</ul>
+		</div>
+		<div class="col">
+			<h3><a href="/services/detail/hosting">Hosting</a></h3>
+			<ul>  
+				<li><a href="/services/detail/hosting/linux">Linux</a></li>
+				<li><a href="/services/detail/hosting/windows">Windows</a></li>
+				<li><a href="/services/detail/hosting/backups">Backups</a></li>
+				<li><a href="/services/detail/hosting/dns">DNS</a></li>
+			</ul>
+		</div>
+	</div>
+</div>
+```
+
+The category group that has been created in ExpressionEngine has 6 root categories (depth 1), which all have a number of child categories (depth 2).
+
+Looking at the code above, there are a couple of "problems" we need to solve:
+
+1. Each div tag with a "col" class consists of a root category wrapped in h3 tags;
+2. We need to make sure that the first three and last three "col" divs are both wrapped in a div tag with a "group" class;
+3. An unordered list with child categories as list items needs to be placed in each div tag with a "col" class;
+4. The parents' `url_title` is required in the hyperlink path for the child categories.
+
+** Getting started **
+First we need to determine what exactly should be part of the plugin output. In this case, the div tags with a "group" class still needs to be part of the plugin output since there are two of those and we need to show some of the categories in one and some categories in the other. Anything before and after that can be placed outside the plugin:
+```
+<div class="dropdown">
+<h2>Services</h2>
+{exp:gwcode_categories channel="services" style="linear"}
+	..
+{/exp:gwcode_categories}
+</div>
+```
+By using the `style="linear"` parameter, we have more control on what the output should look like.
+
+** Problem 1 - Creating "col" class div tags with root categories **
+Now that the basics has been setup, it's time to use the plugin, which loops through the categories one by one, starting with "CMS" and ending with "SEO". The "col" blocks with root (depth 1) categories wrapped in h3 tags can be created by using the {depth1_start} and {depth1_end} variables:
+```
+<div class="dropdown">
+<h2>Services</h2>
+{exp:gwcode_categories channel="services" style="linear"}
+	{if depth1_start}
+				<div class="col">
+					<h3><a href="#">{cat_name}</a></h3>
+	{/if}
+	{if depth1_end}
+				</div>
+	{/if}
+{/exp:gwcode_categories}
+</div>
+```
+This will create the following output:
+```
+<div class="dropdown">
+	<h2>Services</h2>
+		<div class="col">
+			<h3><a href="#">CMS</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">Design</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">E-Commerce</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">Javascript</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">SEO</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">Hosting</a></h3>
+		</div>
+</div>
+```
+** Problem 2 - Splitting six div tags with "col" class into two groups of three **
+For this, we can use the depth1_start_count and depth1_end_count variables:
+```
+<div class="dropdown">
+<h2>Services</h2>
+{exp:gwcode_categories channel="services" style="linear"}
+	{if depth1_start AND depth1_start_count == 1}
+			<div class="group">
+	{/if}
+	{if depth1_start}
+				<div class="col">
+					<h3><a href="#">{cat_name}</a></h3>
+	{/if}
+	{if depth1_end}
+				</div>
+	{/if}
+	{if depth1_end AND depth1_end_count == 3}
+			</div>
+			<div class="group">
+	{/if}
+	{if depth1_end AND depth1_end_count == 6}
+			</div>
+	{/if}
+{/exp:gwcode_categories}
+</div>
+```
+See how this works? Lines 04-06 create a new div tag with "group" class before the first root (depth 1) category is being added to the output. Lines 14-17 close the first div tag with "group" class and creates a second one after the 3rd root (depth 1) category has been added to the output. Lines 18-20 closes the second div tag with "group" class after the 6th root (depth 1) category has been added to the output, making it now look like this:
+```
+<div class="dropdown">
+	<h2>Services</h2>
+	<div class="group">
+		<div class="col">
+			<h3><a href="#">CMS</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">Design</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">E-Commerce</a></h3>
+		</div>
+	</div>
+	<div class="group">
+		<div class="col">
+			<h3><a href="#">Javascript</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">SEO</a></h3>
+		</div>
+		<div class="col">
+			<h3><a href="#">Hosting</a></h3>
+		</div>
+	</div>
+</div>
+```
+** Problem 3 - Adding the child categories **
+Since the (depth 2) child categories are shown in an unordered list, we need to add the opening ul tag when the output for depth 2 categories starts. Likewise, the ul tag needs to be closed when the output for depth 2 categories ends. And, in between, we check if the category has a depth of 2 and if so, add it to the output wrapped in li tags. This gives us the following code, which can be added right between the code we've created for the opening div tag with "col" class and its closing div tag:
+```
+{if depth2_start}
+				<ul>
+{/if}
+{if depth == 2}
+					<li><a href="#">{cat_name}</a></li>
+{/if}
+{if depth2_end}
+				</ul>
+{/if}
+```
+**Problem 4 - Creating the hyperlinks**
+This one is actually really easy. GWcode Categories has a variable called `{complete_path}` which creates a path to the category starting with the root category as defined in your category group. So, for the "DNS" category, it will parse "hosting/dns", which is exactly what we need ("/services/detail/" can be used as a static prefix as it will always be the same for all categories).
+
+Putting it all together
+So there you have it, a category based navigation menu with the ability to add or remove child categories or rearrange them:
+```
+<div class="dropdown">
+<h2>Services</h2>
+{exp:gwcode_categories channel="services" style="linear"}
+	{if depth1_start AND depth1_start_count == 1}
+			<div class="group">
+	{/if}
+	{if depth1_start}
+				<div class="col">
+					<h3><a href="/services/detail/{complete_path}">{cat_name}</a></h3>
+	{/if}
+	{if depth2_start}
+					<ul>
+	{/if}
+	{if depth == 2}
+						<li><a href="/services/detail/{complete_path}">{cat_name}</a></li>
+	{/if}
+	{if depth2_end}
+					</ul>
+	{/if}
+	{if depth1_end}
+				</div>
+	{/if}
+	{if depth1_end AND depth1_end_count == 3}
+			</div>
+			<div class="group">
+	{/if}
+	{if depth1_end AND depth1_end_count == 6}
+			</div>
+	{/if}
+{/exp:gwcode_categories}
+</div>
+```
