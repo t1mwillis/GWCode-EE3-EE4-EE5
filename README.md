@@ -29,6 +29,7 @@ Now, something that can't be done with ExpressionEngine's native {categories} va
 * category 2
 
 *Category group name 2*
+
 * category 5
   * subcat 5
 * category 8
