@@ -1,4 +1,4 @@
-# GWCode-EE3-EE4-EE5
+# Expression Engine GWCode
 A fork of the GWCode module to support EE3+ as well as PHP7
 
 ## Example 1 - Showing categories for an entry
