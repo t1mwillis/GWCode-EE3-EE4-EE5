@@ -2,6 +2,7 @@
 A fork of the GWCode module to support EE3+ as well as PHP7
 
 **To Install**
+
 Add the `gwcode-categories` folder to your system > users > addons folder, then click install in the Expression Engine Control Panel.
 
 ## Example 1 - Showing categories for an entry
@@ -550,6 +551,7 @@ Looking at the code above, there are a couple of "problems" we need to solve:
 4. The parents' `url_title` is required in the hyperlink path for the child categories.
 
 **Getting started**
+
 First we need to determine what exactly should be part of the plugin output. In this case, the div tags with a "group" class still needs to be part of the plugin output since there are two of those and we need to show some of the categories in one and some categories in the other. Anything before and after that can be placed outside the plugin:
 ```
 <div class="dropdown">
@@ -562,6 +564,7 @@ First we need to determine what exactly should be part of the plugin output. In 
 By using the `style="linear"` parameter, we have more control on what the output should look like.
 
 **Problem 1 - Creating "col" class div tags with root categories**
+
 Now that the basics has been setup, it's time to use the plugin, which loops through the categories one by one, starting with "CMS" and ending with "SEO". The "col" blocks with root (depth 1) categories wrapped in h3 tags can be created by using the {depth1_start} and {depth1_end} variables:
 ```
 <div class="dropdown">
@@ -602,6 +605,7 @@ This will create the following output:
 </div>
 ```
 **Problem 2 - Splitting six div tags with "col" class into two groups of three**
+
 For this, we can use the depth1_start_count and depth1_end_count variables:
 ```
 <div class="dropdown">
@@ -656,6 +660,7 @@ See how this works? Lines 04-06 create a new div tag with "group" class before t
 </div>
 ```
 **Problem 3 - Adding the child categories**
+
 Since the (depth 2) child categories are shown in an unordered list, we need to add the opening ul tag when the output for depth 2 categories starts. Likewise, the ul tag needs to be closed when the output for depth 2 categories ends. And, in between, we check if the category has a depth of 2 and if so, add it to the output wrapped in li tags. This gives us the following code, which can be added right between the code we've created for the opening div tag with "col" class and its closing div tag:
 ```
 {if depth2_start}
@@ -669,6 +674,7 @@ Since the (depth 2) child categories are shown in an unordered list, we need to 
 {/if}
 ```
 **Problem 4 - Creating the hyperlinks**
+
 This one is actually really easy. GWcode Categories has a variable called `{complete_path}` which creates a path to the category starting with the root category as defined in your category group. So, for the "DNS" category, it will parse "hosting/dns", which is exactly what we need ("/services/detail/" can be used as a static prefix as it will always be the same for all categories).
 
 Putting it all together
