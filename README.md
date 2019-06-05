@@ -1,6 +1,9 @@
 # Expression Engine GWCode
 A fork of the GWCode module to support EE3+ as well as PHP7
 
+**To Install**
+Add the `gwcode-categories` folder to your system > users > addons folder, then click install in the Expression Engine Control Panel.
+
 ## Example 1 - Showing categories for an entry
 Showing categories for an entry is easy, you can do this with ExpressionEngine's native {categories} variable pair: http://expressionengine.com/user_guide/modules/channel/channel_entries.html#categories
 
