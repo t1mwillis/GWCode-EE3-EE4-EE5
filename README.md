@@ -133,7 +133,7 @@ Here's the code you'd use with GWcode Categories:
 
 You could also use the last_only parameter to show only last child categories, or the depth, min_depth or max_depth parameters to only show categories with a certain depth.
 
-##Example 2 - Showing last child categories only
+## Example 2 - Showing last child categories only
 The `last_only` parameter can be used to display last child categories only.
 My "example" channel has been assigned a category group with the following categories:
 
@@ -183,6 +183,28 @@ You can also use a category as a starting point. For example, if you want to sho
 
 ```
 {exp:gwcode_categories cat_id="13" last_only="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+
+## Example 3 - Showing categories of any (fixed, minimum or maximum) depth
+> Selecting categories by depth has a huge advantage over selecting categories by ID as you would have to do with the standard EE tags, because it allows you to easily add or remove categories in the control panel whithout ever having to update your templates with the new category ID's to reflect the changes!
+
+In this example, we are going to get the categories with a fixed depth of 1 or 2 and categories with a minimum depth of 4. They are highlighted in blue:
+
+* <style="color:blue">cat1</style> (depth: 1)
+  * <style="color:blue">cat1_1</style> (depth: 2)
+    * cat1_1_1 (depth: 3)
+    * cat1_1_2 (depth: 3)
+      * <style="color:blue">cat1_1_2_1</style> (depth: 4)
+        * <style="color:blue">cat1_1_2_1_1</style> (depth: 5)
+  * <style="color:blue">cat1_2</style> (depth: 2)
+* <style="color:blue">cat2</style> (depth: 1)
+  * <style="color:blue">cat2_1</style> (depth: 2)
+  
+The code for a nested list of categories:
+```
+{exp:gwcode_categories channel="example" depth="1|2" min_depth="4"}
 	{cat_name}
 {/exp:gwcode_categories}
 ```
