@@ -132,3 +132,57 @@ Here's the code you'd use with GWcode Categories:
 ```
 
 You could also use the last_only parameter to show only last child categories, or the depth, min_depth or max_depth parameters to only show categories with a certain depth.
+
+##Example 2 - Showing last child categories only
+The `last_only` parameter can be used to display last child categories only.
+My "example" channel has been assigned a category group with the following categories:
+
+* cat1
+  * cat1_1
+    * cat1_1_1
+    * cat1_1_2
+      * cat1_1_2_1
+  * cat1_2
+* cat2
+  * cat2_1
+  
+To get the last child categories only (highlighted in blue) for this channel, the following code can be used:
+
+```
+{exp:gwcode_categories channel="example" last_only="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+
+..which will return a simple nested list of last child categories:
+
+* cat1_1_1
+* cat1_1_2_1
+* cat1_2
+* cat2_1
+
+Of course, you can also show the categories in a linear form by using the `style="linear"` parameter.
+
+If you'd like to show last child categories for an entry, use the `entry_id` instead of the `channel` parameter:
+
+```
+{exp:gwcode_categories entry_id="20" last_only="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+
+Or last child categories for certain category groups:
+
+```
+{exp:gwcode_categories group_id="1|2|3" last_only="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
+
+You can also use a category as a starting point. For example, if you want to show last child categories with cat1 in the example above as the starting point, it will return cat1_1_1, cat1_1_2_1 and cat1_2:
+
+```
+{exp:gwcode_categories cat_id="13" last_only="yes"}
+	{cat_name}
+{/exp:gwcode_categories}
+```
