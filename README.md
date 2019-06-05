@@ -74,14 +74,14 @@ Now, something that can't be done with ExpressionEngine's native {categories} va
 ### Linear categories:
 **Entry title 1**
 *Category group name 1*
- *category 1, subcat 1, subsubcat 1, category 2
+ * category 1, subcat 1, subsubcat 1, category 2
 *Category group name 2*
- *category 5, subcat 5, category 8
+ * category 5, subcat 5, category 8
 **Entry title 2**
 *Category group name 1*
- *category 1, category 3
+ * category 1, category 3
 *Category group name 3*
- *category 10
+ * category 10
 
 With standard ExpressionEngine tags this is impossible to accomplish, unless you use {exp:query} tags in your templates.
 Here's the code you'd use with GWcode Categories:
