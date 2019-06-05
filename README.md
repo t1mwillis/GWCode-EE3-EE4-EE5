@@ -208,3 +208,20 @@ The code for a nested list of categories:
 	{cat_name}
 {/exp:gwcode_categories}
 ```
+Or, for a comma seperated (linear) list:
+```
+{exp:gwcode_categories channel="example" depth="1|2" min_depth="4" style="linear" backspace="1"}
+	{cat_name},
+{/exp:gwcode_categories}
+```
+Alternatively, this would work as well (using conditionals instead of the `backspace` parameter):
+```
+{exp:gwcode_categories channel="example" depth="1|2" min_depth="4" style="linear"}
+	{if cat_count == results_total}
+		{cat_name}
+	{if:else}
+		{cat_name},
+	{/if}
+{/exp:gwcode_categories}
+```
+As always, you could also use the `entry_id` or `group_id` parameter instead of the `channel` parameter to show categories for an entry or category group(s) respectively.
