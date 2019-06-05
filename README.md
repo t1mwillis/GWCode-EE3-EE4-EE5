@@ -1,11 +1,25 @@
 # Expression Engine GWCode
 A fork of the GWCode module to support EE3+ as well as PHP7
 
-## To Install**
+## To Install
 
 Add the `gwcode-categories` folder to your system > users > addons folder, then click install in the Expression Engine Control Panel.
 
 ## Documentation
+
+* Example 1 - Showing categories for an entry
+* Example 2 - Showing last child categories only
+* Example 3 - Showing categories of any (fixed, minimum or maximum) depth
+* Example 4 - Showing the entry count for categories
+* Example 5 - Category based breadcrumbs
+* Example 6 - Automatic nested numbering
+* Example 7 - Counting categories
+* Example 8 - Conditionals
+* Example 9 - Showing child categories or parent categories
+* Example 10 - Sorting categories
+* Example 11 - Creating a menu with specific code
+
+---
 
 ### Example 1 - Showing categories for an entry
 Showing categories for an entry is easy, you can do this with ExpressionEngine's native {categories} variable pair: http://expressionengine.com/user_guide/modules/channel/channel_entries.html#categories
