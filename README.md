@@ -225,3 +225,113 @@ Alternatively, this would work as well (using conditionals instead of the `backs
 {/exp:gwcode_categories}
 ```
 As always, you could also use the `entry_id` or `group_id` parameter instead of the `channel` parameter to show categories for an entry or category group(s) respectively.
+
+## Example 4 - Showing the entry count for categories
+Version 1.1 of GWcode Categories introduced a new variable called `entry_count`, which you can use to show the number of entries in a category. Using this variable, it's easy to create a navigation menu with the number of entries next to each category:
+
+* Category 1 (20)
+* Category 2 (14)
+* Category 3 (8)
+
+The code below will create the menu and show the total number of entries in the categories:
+```
+{exp:gwcode_categories channel="example" entry_count="yes"}
+	<a href="{path="examplepath/{cat_url_title}"}">{cat_name}</a> ({entry_count})
+{/exp:gwcode_categories}
+```
+To only show the number of entries with a certain status, you can use the `status` parameter. If you use the `status` parameter, the `entry_count` parameter will effectively be set to "yes", so you don't need to add that one:
+```
+{exp:gwcode_categories channel="example" status="open|approved"}
+	<a href="{path="examplepath/{cat_url_title}"}">{cat_name}</a> ({entry_count})
+{/exp:gwcode_categories}
+```
+Version 1.1 of the plugin also introduced the `show_empty` parameter. It allows you to show only categories with entries (optionally with a certain status):
+```
+{exp:gwcode_categories channel="example" status="open" show_empty="no"}
+	<a href="{path="examplepath/{cat_url_title}"}">{cat_name}</a> ({entry_count})
+{/exp:gwcode_categories}
+```
+Here's an example of how you select a category's children categories and then also show their entry count:
+```
+{exp:gwcode_categories channel="example" status="open" cat_id="12"}
+	<a href="{path="examplepath/{cat_url_title}"}">{cat_name}</a> ({entry_count})
+{/exp:gwcode_categories}
+```
+
+## Example 5 - Category based breadcrumbs
+
+In this example, I'm creating a breadcrumb trail for an entry. The entry has been assigned to two categories: "ExpressionEngine" and its child category "GWcode Categories", which both belong to a category group named "Add-ons".
+
+I want to be able to create a trail which looks like this: [Home] » [Add-ons] » [ExpressionEngine] » [GWcode Categories] » [Overview].
+
+This is what I would use in my template for the entry page:
+```
+{exp:channel:entries channel="add-ons" limit="1"}
+	<a href="{site_url}">Home</a> &raquo;
+	{exp:gwcode_categories entry_id="{entry_id}" style="linear"}
+		{if group_start}<a href="{path="add-ons"}">{cat_group_name}</a> &raquo;{/if}
+		<a href="{path="add-ons/{cat_url_title}"}">{cat_name}</a> &raquo;
+	{/exp:gwcode_categories}
+	{title}
+{/exp:channel:entries}
+```
+
+## Example 6 - Automatic nested numbering
+
+With a couple lines of CSS code, we can get a list of categories with automatic nested numbering (sub-numbering for child categories) such as this:
+
+1. cat1
+  1. cat1_1
+    1. cat1_1_1
+    2. cat1_1_2
+      1. cat1_1_2_1
+  2. cat1_2
+2. cat2
+  1. cat2_1
+  
+The CSS:
+```
+ol.subcount, ol.subcount ol { counter-reset: item; }
+ol.subcount li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+}
+ol.subcount li ol li {
+	display: block;
+	margin-left: 25px;
+}
+ol.subcount li:before {
+	content: counters(item, ".") ") ";
+	counter-increment: item;
+}
+```
+The plugin code:
+```
+{exp:gwcode_categories channel="example" list_type="ol" class="subcount"}
+	<span style="font-weight: normal;">{cat_name}</span>
+{/exp:gwcode_categories}
+```
+
+## Example 7 - Counting categories
+This plugin can also be used to count the number of categories. A couple of examples:
+
+Total number of categories, overall:
+```
+{exp:gwcode_categories limit="1"}
+	Total: {results_total}
+{/exp:gwcode_categories}
+```
+Total number of last child categories for channel "example":
+```
+{exp:gwcode_categories channel="example" last_only="yes" limit="1"}
+	Total: {results_total}
+{/exp:gwcode_categories}
+```
+Total number of depth 2 categories an entry has been added to:
+```
+{exp:gwcode_categories entry_id="30" depth="2" limit="1"}
+	Total: {results_total}
+{/exp:gwcode_categories}
+```
