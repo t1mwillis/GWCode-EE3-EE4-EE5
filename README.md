@@ -1,11 +1,13 @@
 # Expression Engine GWCode
 A fork of the GWCode module to support EE3+ as well as PHP7
 
-**To Install**
+## To Install**
 
 Add the `gwcode-categories` folder to your system > users > addons folder, then click install in the Expression Engine Control Panel.
 
-## Example 1 - Showing categories for an entry
+## Documentation
+
+### Example 1 - Showing categories for an entry
 Showing categories for an entry is easy, you can do this with ExpressionEngine's native {categories} variable pair: http://expressionengine.com/user_guide/modules/channel/channel_entries.html#categories
 
 Or, with GWcode Categories:
@@ -20,7 +22,7 @@ Or, with GWcode Categories:
 
 Now, something that can't be done with ExpressionEngine's native {categories} variable pair. Let's say you have a channel with multiple category groups. Those category groups all have their own categories. When you create a new entry for that channel, you add it to any number of categories from any of those category groups. You'd like to list the category groups and categories the entry has been added to. Nested, or linear:
 
-### Nested categories:
+#### Nested categories:
 
 **Entry title 1**
 
@@ -49,7 +51,7 @@ Now, something that can't be done with ExpressionEngine's native {categories} va
 
  * category 10
 
-### Simple nested categories:
+#### Simple nested categories:
 
 **Entry title 1**
 
@@ -77,7 +79,8 @@ Now, something that can't be done with ExpressionEngine's native {categories} va
 
  * category 10
 
-### Linear categories:
+#### Linear categories:
+
 **Entry title 1**
 
 *Category group name 1*
@@ -101,7 +104,7 @@ Now, something that can't be done with ExpressionEngine's native {categories} va
 With standard ExpressionEngine tags this is impossible to accomplish, unless you use {exp:query} tags in your templates.
 Here's the code you'd use with GWcode Categories:
 
-### Nested Categories:
+#### Nested Categories:
 ```
 {exp:channel:entries channel="example" disable="categories|member_data|pagination"}
 	<b>{title}</b><br />
@@ -112,7 +115,7 @@ Here's the code you'd use with GWcode Categories:
 {/exp:channel:entries}
 ```
 
-### Simple Nested Categories:
+#### Simple Nested Categories:
 ```
 {exp:channel:entries channel="example" disable="categories|member_data|pagination"}
 	<b>{title}</b><br />
@@ -123,7 +126,7 @@ Here's the code you'd use with GWcode Categories:
 {/exp:channel:entries}
 ```
 
-### Linear Categories:
+#### Linear Categories:
 ```
 {exp:channel:entries channel="example" disable="categories|member_data|pagination"}
 	<b>{title}</b>
@@ -137,7 +140,7 @@ Here's the code you'd use with GWcode Categories:
 
 You could also use the last_only parameter to show only last child categories, or the depth, min_depth or max_depth parameters to only show categories with a certain depth.
 
-## Example 2 - Showing last child categories only
+### Example 2 - Showing last child categories only
 The `last_only` parameter can be used to display last child categories only.
 My "example" channel has been assigned a category group with the following categories:
 
@@ -191,7 +194,7 @@ You can also use a category as a starting point. For example, if you want to sho
 {/exp:gwcode_categories}
 ```
 
-## Example 3 - Showing categories of any (fixed, minimum or maximum) depth
+### Example 3 - Showing categories of any (fixed, minimum or maximum) depth
 > Selecting categories by depth has a huge advantage over selecting categories by ID as you would have to do with the standard EE tags, because it allows you to easily add or remove categories in the control panel whithout ever having to update your templates with the new category ID's to reflect the changes!
 
 In this example, we are going to get the categories with a fixed depth of 1 or 2 and categories with a minimum depth of 4. They are **in bold text**:
@@ -230,7 +233,7 @@ Alternatively, this would work as well (using conditionals instead of the `backs
 ```
 As always, you could also use the `entry_id` or `group_id` parameter instead of the `channel` parameter to show categories for an entry or category group(s) respectively.
 
-## Example 4 - Showing the entry count for categories
+### Example 4 - Showing the entry count for categories
 Version 1.1 of GWcode Categories introduced a new variable called `entry_count`, which you can use to show the number of entries in a category. Using this variable, it's easy to create a navigation menu with the number of entries next to each category:
 
 * Category 1 (20)
@@ -262,7 +265,7 @@ Here's an example of how you select a category's children categories and then al
 {/exp:gwcode_categories}
 ```
 
-## Example 5 - Category based breadcrumbs
+### Example 5 - Category based breadcrumbs
 
 In this example, I'm creating a breadcrumb trail for an entry. The entry has been assigned to two categories: "ExpressionEngine" and its child category "GWcode Categories", which both belong to a category group named "Add-ons".
 
@@ -280,7 +283,7 @@ This is what I would use in my template for the entry page:
 {/exp:channel:entries}
 ```
 
-## Example 6 - Automatic nested numbering
+### Example 6 - Automatic nested numbering
 
 With a couple lines of CSS code, we can get a list of categories with automatic nested numbering (sub-numbering for child categories) such as this:
 
@@ -318,7 +321,7 @@ The plugin code:
 {/exp:gwcode_categories}
 ```
 
-## Example 7 - Counting categories
+### Example 7 - Counting categories
 This plugin can also be used to count the number of categories. A couple of examples:
 
 Total number of categories, overall:
@@ -340,7 +343,7 @@ Total number of depth 2 categories an entry has been added to:
 {/exp:gwcode_categories}
 ```
 
-## Example 8 - Conditionals
+### Example 8 - Conditionals
 
 Here's an example to show how to use conditionals:
 ```
@@ -358,7 +361,7 @@ Here's an example to show how to use conditionals:
 {/exp:gwcode_categories}
 ```
 
-## Example 9 - Showing child categories or parent categories
+### Example 9 - Showing child categories or parent categories
 
 Here's the category group I'm going to use for these examples:
 
@@ -423,7 +426,7 @@ This will then be the output:
 
 cat1 » cat1_1 » cat1_1_2 » cat1_1_2_1
 
-## Example 10 - Sorting categories
+### Example 10 - Sorting categories
 
 In this example, I'm going to show you how to grab a list of categories and then sort them to show a
 "Newest categories" list and a "Most popular categories" list.
@@ -443,6 +446,7 @@ The output looks like this:
   * Wordpress (0)
   
 **Newest categories, sorting them by `cat_id`** 
+
 To re-order the list above so that the categories which have been added the latest are at the top, you can use the `orderby` and `sort` parameters. For the `orderby` parameter, I'm going to use "cat_id", since the categories you've added latest will have the highest category ID. For the `sort` parameter, I'm going to use "desc" as the categories with the highest category ID's should be at the top. For clarification, I've also added the `{cat_id}` variable in the output so you can see how the list is being sorted.
 ```
 {exp:gwcode_categories group_id="5" depth="3|4" entry_count="yes" orderby="cat_id" sort="desc"}
@@ -458,6 +462,7 @@ The output will then be:
 * Magento (2) ← ID: 20
 
 **Most popular categories, sorting them by `entry_count` and `cat_name`**
+
 If you want to show a most popular categories list, which has the categories with the most entries at the top, you'll have to use "entry_count" for the `orderby` parameter and "desc" for the `sort` parameter. If you also want to make sure that categories with the same number of entries are sorted alphabatically (A at the top, Z at the bottom), you can add "cat_name" as a second value for the `orderby` parameter and "asc" as a second value for the `sort` parameter like so:
 ```
 {exp:gwcode_categories group_id="5" depth="3|4" entry_count="yes" orderby="entry_count|cat_name" sort="desc|asc"}
@@ -474,7 +479,7 @@ If you want to show a most popular categories list, which has the categories wit
 
 As you can see, Content Management System and E-commerce have the same number of entries (1) and Content Management System is listed first because of the second parameter values for the `orderby` and `sort` parameters (cat_name, asc).
 
-## Example 11 - Creating a menu with specific code
+### Example 11 - Creating a menu with specific code
 
 GWcode Categories v1.8.0 introduced a couple of new variables. Some of them were added to be able to create complete category based navigation menus which sometimes may require distinct HTML/CSS code.
 
