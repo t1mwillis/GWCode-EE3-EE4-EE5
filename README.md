@@ -7,17 +7,17 @@ Add the `gwcode-categories` folder to your system > users > addons folder, then 
 
 ## Documentation
 
-* Example 1 - Showing categories for an entry
-* Example 2 - Showing last child categories only
-* Example 3 - Showing categories of any (fixed, minimum or maximum) depth
-* Example 4 - Showing the entry count for categories
-* Example 5 - Category based breadcrumbs
-* Example 6 - Automatic nested numbering
-* Example 7 - Counting categories
-* Example 8 - Conditionals
-* Example 9 - Showing child categories or parent categories
-* Example 10 - Sorting categories
-* Example 11 - Creating a menu with specific code
+* [Example 1 - Showing categories for an entry](#example-1---showing-categories-for-an-entry)
+* [Example 2 - Showing last child categories only](#example-2---showing-last-child-categories-only)
+* [Example 3 - Showing categories of any (fixed, minimum or maximum) depth](#example-3---showing-categories-of-any-fixed-minimum-or-maximum-depth)
+* [Example 4 - Showing the entry count for categories](#example-4---showing-the-entry-count-for-categories)
+* [Example 5 - Category based breadcrumbs](#example-5---category-based-breadcrumbs)
+* [Example 6 - Automatic nested numbering](#example-6---automatic-nested-numbering)
+* [Example 7 - Counting categories](#example-7---counting-categories)
+* [Example 8 - Conditionals](#example-8---conditionals)
+* [Example 9 - Showing child categories or parent categories](#example-9---showing-child-categories-or-parent-categories)
+* [Example 10 - Sorting categories](#example-10---sorting-categories)
+* [Example 11 - Creating a menu with specific code](#example-11---creating-a-menu-with-specific-code)
 
 ---
 
