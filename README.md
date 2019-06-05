@@ -190,17 +190,17 @@ You can also use a category as a starting point. For example, if you want to sho
 ## Example 3 - Showing categories of any (fixed, minimum or maximum) depth
 > Selecting categories by depth has a huge advantage over selecting categories by ID as you would have to do with the standard EE tags, because it allows you to easily add or remove categories in the control panel whithout ever having to update your templates with the new category ID's to reflect the changes!
 
-In this example, we are going to get the categories with a fixed depth of 1 or 2 and categories with a minimum depth of 4. They are highlighted in blue:
+In this example, we are going to get the categories with a fixed depth of 1 or 2 and categories with a minimum depth of 4. They are **in bold text**:
 
-* <style="color:blue">cat1</style> (depth: 1)
-  * <style="color:blue">cat1_1</style> (depth: 2)
+* **cat1** (depth: 1)
+  * **cat1_1** (depth: 2)
     * cat1_1_1 (depth: 3)
     * cat1_1_2 (depth: 3)
-      * <style="color:blue">cat1_1_2_1</style> (depth: 4)
-        * <style="color:blue">cat1_1_2_1_1</style> (depth: 5)
-  * <style="color:blue">cat1_2</style> (depth: 2)
-* <style="color:blue">cat2</style> (depth: 1)
-  * <style="color:blue">cat2_1</style> (depth: 2)
+      * **cat1_1_2_1** (depth: 4)
+        * **cat1_1_2_1_1** (depth: 5)
+  * **cat1_2** (depth: 2)
+* **cat2** (depth: 1)
+  * **cat2_1** (depth: 2)
   
 The code for a nested list of categories:
 ```
