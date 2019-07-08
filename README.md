@@ -1,5 +1,5 @@
 # Expression Engine GWCode
-A fork of the GWCode module to support EE3+ as well as PHP7
+A fork of the GWCode module to support EE3+ as well as PHP7. All code is the work of Leon Dijk (GWcode).
 
 ## To Install
 
