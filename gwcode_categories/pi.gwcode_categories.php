@@ -23,6 +23,8 @@ class Gwcode_categories {
 	private $group_ids = ''; // comma separated string of group id's to be used in sql queries.
 	private $entry_ids = ''; // comma separated string of entry id's to be used in sql queries.
 	private $custom_fields_arr = array(); // array with custom category field id's and names. key = group_id; value = array
+	private $custom_tables_joins = ''; // comma separated string of custom category field tables in EE4
+	private $custom_tables_selects = ''; // comma separated string of custom category table fields in EE4
 	private $sql_type = 3; // 1 --> entry count, with exp_channel_titles table; 2 --> entry_count (simpler); 3 --> no entry count.
 	private $remove_from_begin = 0;
 	private $remove_from_end = 0;
@@ -313,9 +315,15 @@ class Gwcode_categories {
 	} // end function __construct
 
 	private function _get_by_channel() {
-		$channels = $this->EE->db->escape_str($this->channel);
-		$channels = str_replace('|', "','", $channels);
-		$gwc_result = $this->EE->db->query('SELECT channel_id, cat_group FROM exp_channels WHERE site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND channel_name IN (\''.$channels.'\') ORDER BY FIELD(channel_name, \''.$channels.'\')');
+		// add caching to repeat query
+		$cache_key = 'get_by_channel_' . $this->channel . '_' . $this->site_ids;
+		if (!ee()->session->cache(__CLASS__, $cache_key)) {
+			$channels = $this->EE->db->escape_str($this->channel);
+			$channels = str_replace('|', "','", $channels);
+			$data = $this->EE->db->query('SELECT channel_id, cat_group FROM exp_channels WHERE site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND channel_name IN (\''.$channels.'\') ORDER BY FIELD(channel_name, \''.$channels.'\')');
+			ee()->session->set_cache(__CLASS__, $cache_key, $data);
+		}
+		$gwc_result = ee()->session->cache(__CLASS__, $cache_key);
 		if($gwc_result->num_rows() == 0) {
 			return $this->EE->TMPL->no_results();
 		}
@@ -400,7 +408,7 @@ class Gwcode_categories {
 						'ORDER BY site_id, FIELD(c.group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
 			}
 			else {
-				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.*, ' .
+				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.* ' . $this->custom_tables_selects . ', ' .
 						'(' .
 						'SELECT COUNT(ct.entry_id) ' .
 						'FROM exp_channel_titles ct, exp_category_posts cp ' .
@@ -408,6 +416,7 @@ class Gwcode_categories {
 				$sql .=	$sql_extra;
 				$sql .=	') AS entry_count ' .
 						'FROM exp_categories c LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') AND c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') ' .
 						'ORDER BY site_id, FIELD(c.group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
 			}
@@ -421,10 +430,11 @@ class Gwcode_categories {
 						'GROUP BY c.cat_id ORDER BY site_id, FIELD(group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
 			}
 			else {
-				$sql =	'SELECT c.parent_id, c.cat_name, cat_url_title, cat_description, cat_image, cat_order, COUNT(cp.entry_id) AS entry_count, cfd.* ' .
+				$sql =	'SELECT c.parent_id, c.cat_name, cat_url_title, cat_description, cat_image, cat_order, COUNT(cp.entry_id) AS entry_count, cfd.* ' . $this->custom_tables_selects . 
 						'FROM exp_categories c ' .
 						'LEFT JOIN exp_category_posts as cp ON c.cat_id=cp.cat_id ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id ' .
 						'AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') AND c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') ' .
 						'GROUP BY c.cat_id ORDER BY site_id, FIELD(c.group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
@@ -435,8 +445,9 @@ class Gwcode_categories {
 				$sql = 'SELECT * FROM exp_categories WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ORDER BY site_id, FIELD(group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
 			}
 			else {
-				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.* ' .
+				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.* ' . $this->custom_tables_selects . 
 						'FROM exp_categories c LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id AND c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ORDER BY site_id, FIELD(c.group_id, '.$this->EE->db->escape_str($this->group_ids).'), parent_id, cat_order';
 			}
 		}
@@ -541,7 +552,7 @@ class Gwcode_categories {
 						'ORDER BY parent_id, cat_order';
 			}
 			else {
-				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, ' .
+				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order ' . $this->custom_tables_selects . ', ' . 
 						'(' .
 						'SELECT COUNT(ct.entry_id) ' .
 						'FROM exp_channel_titles ct, exp_category_posts cp ' .
@@ -550,6 +561,7 @@ class Gwcode_categories {
 				$sql .=	') AS entry_count, cfd.* ' .
 						'FROM exp_categories c ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id AND c.site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN('.$this->EE->db->escape_str($this->group_ids).') ' .
 						'ORDER BY parent_id, cat_order';
 			}
@@ -562,9 +574,11 @@ class Gwcode_categories {
 						'GROUP BY c.cat_id ORDER BY parent_id, cat_order';
 			}
 			else {
-				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, COUNT(cp.entry_id) AS entry_count, cfd.* ' .
-						'FROM exp_categories c LEFT JOIN exp_category_posts as cp ON c.cat_id=cp.cat_id ' .
+				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, COUNT(cp.entry_id) AS entry_count, cfd.* ' . $this->custom_tables_selects . 
+						'FROM exp_categories c ' .
+						'LEFT JOIN exp_category_posts as cp ON c.cat_id=cp.cat_id ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id AND c.site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN('.$this->EE->db->escape_str($this->group_ids).') ' .
 						'GROUP BY c.cat_id ORDER BY parent_id, cat_order ';
 			}
@@ -574,7 +588,7 @@ class Gwcode_categories {
 				$sql = 'SELECT * FROM exp_categories WHERE site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN('.$this->EE->db->escape_str($this->group_ids).') ORDER BY parent_id, cat_order';
 			}
 			else {
-				$sql = 'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.* FROM exp_categories c LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id WHERE c.site_id=cfd.site_id AND c.site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN('.$this->EE->db->escape_str($this->group_ids).') ORDER BY parent_id, cat_order';
+				$sql = 'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.* ' . $this->custom_tables_selects . ' FROM exp_categories c LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' . $this->custom_tables_joins . ' WHERE c.site_id=cfd.site_id AND c.site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN('.$this->EE->db->escape_str($this->group_ids).') ORDER BY parent_id, cat_order';
 			}
 		}
 		if(!$this->_get_categories($sql)) {
@@ -714,7 +728,7 @@ class Gwcode_categories {
 						'WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 			else {
-				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.*, ';
+				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.* ' . $this->custom_tables_selects . ', ';
 				$sql .=	($multiple_entry_ids) ? 'group_concat(cp.entry_id separator ",") AS entry_id, ' : 'cp.entry_id, ';
 				$sql .=	'(' .
 						'SELECT COUNT(cp2.entry_id) FROM exp_channel_titles ct, exp_category_posts cp2 ' .
@@ -724,6 +738,7 @@ class Gwcode_categories {
 						'FROM exp_categories c ' .
 						'LEFT JOIN exp_category_posts cp ON c.cat_id=cp.cat_id AND cp.entry_id IN ('.$this->EE->db->escape_str($this->entry_ids).') OR cp.entry_id IS NULL ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 		}
@@ -737,12 +752,13 @@ class Gwcode_categories {
 						'WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 			else {
-				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.*, ';
+				$sql =	'SELECT parent_id, cat_name, cat_url_title, cat_description, cat_image, cat_order, cfd.* ' . $this->custom_tables_selects . ', ';
 				$sql .=	($multiple_entry_ids) ? 'group_concat(cp.entry_id separator ",") AS entry_id, ' : 'cp.entry_id, ';
 				$sql .=	'(SELECT COUNT(cp2.entry_id) FROM exp_category_posts cp2 WHERE cp2.cat_id=c.cat_id) AS entry_count ' .
 						'FROM exp_categories c ' .
 						'LEFT JOIN exp_category_posts cp ON c.cat_id=cp.cat_id AND cp.entry_id IN ('.$this->EE->db->escape_str($this->entry_ids).') OR cp.entry_id IS NULL ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 		}
@@ -754,10 +770,11 @@ class Gwcode_categories {
 						'WHERE c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 			else {
-				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.*, ';
+				$sql =	'SELECT c.parent_id, c.cat_name, c.cat_url_title, c.cat_description, c.cat_image, c.cat_order, cfd.* ' . $this->custom_tables_selects . ', ';
 				$sql .=	($multiple_entry_ids) ? 'group_concat(cp.entry_id separator ",") AS entry_id ' : 'cp.entry_id ';
 				$sql .=	'FROM exp_categories c LEFT JOIN exp_category_posts cp ON c.cat_id=cp.cat_id AND cp.entry_id IN ('.$this->EE->db->escape_str($this->entry_ids).') OR cp.entry_id IS NULL ' .
 						'LEFT JOIN exp_category_field_data cfd ON cfd.cat_id=c.cat_id ' .
+						$this->custom_tables_joins .
 						'WHERE c.site_id=cfd.site_id AND c.site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND c.group_id IN ('.$this->EE->db->escape_str($this->group_ids).') ';
 			}
 		}
@@ -1260,12 +1277,21 @@ class Gwcode_categories {
 		$this->EE->typography->convert_curly = false;
 
 		// grab custom field names and add them to array
-		$sql = 'SELECT field_id, field_name, group_id FROM exp_category_fields WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN('.$this->EE->db->escape_str($this->group_ids).')';
+		$sql = 'SELECT * FROM exp_category_fields WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN('.$this->EE->db->escape_str($this->group_ids).')';
 		$gwc_result = $this->EE->db->query($sql);
 		if($gwc_result->num_rows() != 0) {
 			foreach($gwc_result->result_array() as $row) {
-				$this->custom_fields_arr[$row['group_id']][] = array('field_id' => $row['field_id'], 'field_name' => $row['field_name']);
+				$this->custom_fields_arr[$row['group_id']][] = array(
+					'field_id' => $row['field_id'], 
+					'field_name' => $row['field_name'], 
+					'legacy_field_data' => (isset($row['legacy_field_data']) && $row['legacy_field_data'] == 'n' ) ? FALSE : TRUE
+				);
+				if (isset($row['legacy_field_data']) && $row['legacy_field_data'] != 'y') {
+					$this->custom_tables_selects .= ", cfd{$row['field_id']}.field_id_{$row['field_id']}, cfd{$row['field_id']}.field_ft_{$row['field_id']} ";
+					$this->custom_tables_joins .= " LEFT JOIN exp_category_field_data_field_{$row['field_id']} cfd{$row['field_id']} ON cfd.cat_id = cfd{$row['field_id']}.cat_id ";
+				}
 			}
+			
 		}
 	}
 
@@ -1379,10 +1405,10 @@ class Gwcode_categories {
 			}
 			else {
 				if($this->sort == 'desc') {
-					usort($this->categories, create_function('$b,$a','return strnatcasecmp($a["'.$col_name.'"],$b["'.$col_name.'"]);')); // sort by entry_count, highest numbers above
+					usort($this->categories, function($b, $a) use ($col_name){return strnatcasecmp($a[$col_name],$b[$col_name]);});
 				}
 				else {
-					usort($this->categories, create_function('$a,$b','return strnatcasecmp($a["'.$col_name.'"],$b["'.$col_name.'"]);')); // sort by entry_count, lowest numbers above
+					usort($this->categories, function($a, $b) use ($col_name){return strnatcasecmp($a[$col_name],$b[$col_name]);});
 				}
 			}
 		}
