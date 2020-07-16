@@ -1405,10 +1405,10 @@ class Gwcode_categories {
 			}
 			else {
 				if($this->sort == 'desc') {
-					usort($this->categories, create_function('$b,$a','return strnatcasecmp($a["'.$col_name.'"],$b["'.$col_name.'"]);')); // sort by entry_count, highest numbers above
+					usort($this->categories, function($b, $a) use ($col_name){return strnatcasecmp($a[$col_name],$b[$col_name]);});
 				}
 				else {
-					usort($this->categories, create_function('$a,$b','return strnatcasecmp($a["'.$col_name.'"],$b["'.$col_name.'"]);')); // sort by entry_count, lowest numbers above
+					usort($this->categories, function($a, $b) use ($col_name){return strnatcasecmp($a[$col_name],$b[$col_name]);});
 				}
 			}
 		}
