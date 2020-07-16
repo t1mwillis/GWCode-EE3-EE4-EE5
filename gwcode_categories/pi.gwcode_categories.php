@@ -315,9 +315,15 @@ class Gwcode_categories {
 	} // end function __construct
 
 	private function _get_by_channel() {
-		$channels = $this->EE->db->escape_str($this->channel);
-		$channels = str_replace('|', "','", $channels);
-		$gwc_result = $this->EE->db->query('SELECT channel_id, cat_group FROM exp_channels WHERE site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND channel_name IN (\''.$channels.'\') ORDER BY FIELD(channel_name, \''.$channels.'\')');
+		// add caching to repeat query
+		$cache_key = 'get_by_channel_' . $this->channel . '_' . $this->site_ids;
+		if (!ee()->session->cache(__CLASS__, $cache_key)) {
+			$channels = $this->EE->db->escape_str($this->channel);
+			$channels = str_replace('|', "','", $channels);
+			$data = $this->EE->db->query('SELECT channel_id, cat_group FROM exp_channels WHERE site_id IN('.$this->EE->db->escape_str($this->site_ids).') AND channel_name IN (\''.$channels.'\') ORDER BY FIELD(channel_name, \''.$channels.'\')');
+			ee()->session->set_cache(__CLASS__, $cache_key, $data);
+		}
+		$gwc_result = ee()->session->cache(__CLASS__, $cache_key);
 		if($gwc_result->num_rows() == 0) {
 			return $this->EE->TMPL->no_results();
 		}
