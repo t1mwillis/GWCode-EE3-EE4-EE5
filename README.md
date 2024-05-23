@@ -1,5 +1,7 @@
-# Expression Engine GWCode
+# Expression Engine GWCode (Deprecated)
 A fork of the GWCode module to support EE3-EE7 as well as PHP8.2. All code is the work of Leon Dijk (GWcode).
+
+This repository is no longer actively maintained -- for more "up-to-date" code, please go [here to @ignetic's fork](https://github.com/ignetic/GWCode-EE3-EE4-EE5).
 
 ## To Install
 
