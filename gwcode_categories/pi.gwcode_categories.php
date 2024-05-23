@@ -31,6 +31,44 @@ class Gwcode_categories {
 	private $max_depth_in_output = 1; // this will store the highest depth number in the final output
 	private $min_depth_in_output = 1; // this will store the lowest depth number in the final output
 
+	//PHP8.2 Fix
+	private $EE;
+	private $site_id;
+	private $channel;
+	private $group_id;
+	private $entry_id;
+	private $limit;
+	private $last_only;
+	private $style;
+	private $list_type;
+	private $backspace;
+	private $id;
+	private $class;
+	private $depth;
+	private $min_depth;
+	private $max_depth;
+	private $entry_count;
+	private $status;
+	private $show_empty;
+	private $cat_id;
+	private $cat_url_title;
+	private $show_trail;
+	private $incl_self;
+	private $custom_fields;
+	private $show_full_trail;
+	private $excl_cat_id;
+	private $excl_cat_id_children;
+	private $count_future_entries;
+	private $count_expired_entries;
+	private $output_depth;
+	private $orderby;
+	private $sort;
+	private $offset;
+	private $excl_group_id;
+	private $var_prefix;
+	private $show;
+	private $switch;
+
 	public function __construct() {
 		$this->EE = get_instance();
 
@@ -983,11 +1021,20 @@ class Gwcode_categories {
 				$cat_image = ($cat_image == '0' || $cat_image == '') ? '' : $this->EE->file_field->parse_string($cat_image);
 			}
 
+			// create output similar to EE's category typography
+			ee()->load->library('typography'); 
+			$cat_name = $this->categories[$gw_i]['cat_name'];
+
 			$var_values_arr = array(
 								$this->var_prefix.'site_id' => $this->categories[$gw_i]['site_id'],
 								$this->var_prefix.'cat_count' => $gw_i+1,
 								$this->var_prefix.'cat_id' => $this->categories[$gw_i]['cat_id'],
-								$this->var_prefix.'cat_name' => $this->categories[$gw_i]['cat_name'],
+								//$this->var_prefix.'cat_name' => $this->categories[$gw_i]['cat_name'],
+								$this->var_prefix.'cat_name:raw_content' => $cat_name,
+								$this->var_prefix.'cat_name:json' => trim(json_encode($cat_name), '"'),
+								$this->var_prefix.'cat_name:url_encode' => urlencode($cat_name),
+								$this->var_prefix.'cat_name:url_decode' => urldecode($cat_name),
+								$this->var_prefix.'cat_name' => ee()->typography->format_characters($cat_name),
 								$this->var_prefix.'cat_url_title' => $this->categories[$gw_i]['cat_url_title'],
 								$this->var_prefix.'cat_description' => $this->categories[$gw_i]['cat_description'],
 								$this->var_prefix.'cat_image' => $cat_image,
@@ -1277,8 +1324,13 @@ class Gwcode_categories {
 		$this->EE->typography->convert_curly = false;
 
 		// grab custom field names and add them to array
-		$sql = 'SELECT * FROM exp_category_fields WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN('.$this->EE->db->escape_str($this->group_ids).')';
-		$gwc_result = $this->EE->db->query($sql);
+		$cache_key = 'get_custom_fields_' . $this->group_ids . '_' . $this->site_ids;
+		if (!ee()->session->cache(__CLASS__, $cache_key)) {
+			$sql = 'SELECT * FROM exp_category_fields WHERE site_id IN ('.$this->EE->db->escape_str($this->site_ids).') AND group_id IN('.$this->EE->db->escape_str($this->group_ids).')';
+			$gwc_result = $this->EE->db->query($sql);
+			ee()->session->set_cache(__CLASS__, $cache_key, $gwc_result);
+		}
+		$gwc_result = ee()->session->cache(__CLASS__, $cache_key);
 		if($gwc_result->num_rows() != 0) {
 			foreach($gwc_result->result_array() as $row) {
 				$this->custom_fields_arr[$row['group_id']][] = array(
@@ -1297,7 +1349,12 @@ class Gwcode_categories {
 
 	private function _get_categories($sql) {
 		// grab all categories and add them to $this->categories
-		$gwc_result = $this->EE->db->query($sql);
+		$cache_key = 'get_categories_' . md5($sql) . '_' . $this->site_ids;
+		if (!ee()->session->cache(__CLASS__, $cache_key)) {
+			$gwc_result = $this->EE->db->query($sql);
+			ee()->session->set_cache(__CLASS__, $cache_key, $gwc_result);
+		}
+		$gwc_result = ee()->session->cache(__CLASS__, $cache_key);
 		if($gwc_result->num_rows() == 0) {
 			return false;
 		}
